@@ -19,7 +19,6 @@
     - ruby
     - folder_structure
     - rails
-    - email
     - queue
     - puma
 
