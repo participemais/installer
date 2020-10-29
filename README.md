@@ -2,30 +2,9 @@
 
 [CONSUL](https://github.com/consul/consul) installer for production environments
 
-Using [Ansible](http://docs.ansible.com/), it will install and configure the following:
-
-- Ruby
-- Rails
-- Postgres
-- Nginx
-- Puma
-- SMTP
-- Memcached
-- DelayedJobs
-- HTTPS
-- Capistrano
-
-It will also create a `deploy` user to install these libraries
-
-## Screencast
-
-[How to setup CONSUL for a production environment](https://youtu.be/1lvnjDuRFzw)
 
 ## Prerequisities
 
-A remote server with one of the supported distributions:
-
-- Ubuntu 16.04 x64
 - Ubuntu 18.04 x64
 
 Access to a remote server via public ssh key without password.
@@ -46,6 +25,27 @@ Python 2.7 installed in the remote server
 ```
 sudo apt-get -y install python-simplejson
 ```
+
+## Preparando para instalação
+
+Na máquina remota:
+```
+$ sudo adduser deploy
+$ sudo usermod -aG sudo deploy
+```
+
+Na máquina local (com usuário deploy):
+```
+$ ssh-keygen -t rsa
+$ ssh-copy-id deploy@server_ip_address
+$ ssh deploy@server_ip_address
+```
+
+Desabilitar senha na máquina remota:
+```
+$ sudo passwd -d deploy
+```
+
 
 ## Running the installer
 
