@@ -5,8 +5,8 @@ app_name: consul
 server_hostname: "{{ domain | default(ansible_default_ipv4.address) }}"
 
 # Server Timzone + Locale
-timezone: Europe/Madrid
-locale: en_US.UTF-8
+timezone: America/Sao_Paulo
+locale: pt_BR.UTF-8
 
 # General settings
 env: production
@@ -36,9 +36,9 @@ database_hostname: "localhost"
 database_port: 5432
 
 #SMTP
-smtp_address:        "smtp.example.com"
+smtp_address:        "smtpcorp.prodam"
 smtp_port:           25
-smtp_domain:         "your_domain.com"
+smtp_domain:         "participemaishom.prefeitura.sp.gov.br"
 smtp_user_name:      "username"
 smtp_password:       "password"
 smtp_authentication: "plain"
