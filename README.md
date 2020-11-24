@@ -73,11 +73,6 @@ Run the ansible playbook
 ansible-playbook -v consul.yml -i hosts --extra-vars "ansible_sudo_pass=<senha>
 ```
 
-Em staging:
-```
-ansible-playbook -v consul.yml -i hosts --extra-vars "ansible_sudo_pass=<senha> env=staging"
-```
-
 Note about old versions: if you've already used the installer before version 1.1 was released, you might need to remove your `~/.ansible` folder.
 
 Visit remote-server-ip-address in your browser and you should see CONSUL running!
@@ -146,6 +141,16 @@ branch=stable cap production deploy
 
 You should now see that change at your remote server's ip address
 
+## Dump e Restore
+
+```
+ psql -U deploy consul_<env>
+ALTER ROLE deploy Superuser;
+\q
+pg_dump -U deploy  consul_<env> > original.dump
+pg_restore -d consul_<env> db.dump -c -U deploy
+```
+
 ## Email configuration
 
 ### Screencast
@@ -197,7 +202,7 @@ remote-server-ip-address (maintain other default options)
 And run the playbook with an extra var "env":
 
 ```
-ansible-playbook -v consul.yml --extra-vars "env=staging" -i hosts
+ansible-playbook -v consul.yml -i hosts --extra-vars "ansible_sudo_pass=<senha> env=staging"
 ```
 
 Visit remote-server-ip-address in your browser and you should now see CONSUL running in your staging server.
