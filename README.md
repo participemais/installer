@@ -41,11 +41,6 @@ $ ssh-copy-id deploy@server_ip_address
 $ ssh deploy@server_ip_address
 ```
 
-Desabilitar senha na máquina remota:
-```
-$ sudo passwd -d deploy
-```
-
 
 ## Running the installer
 
@@ -75,7 +70,12 @@ remote-server-ip-address (maintain other default options)
 Run the ansible playbook
 
 ```
-ansible-playbook -v consul.yml -i hosts
+ansible-playbook -v consul.yml -i hosts --extra-vars "ansible_sudo_pass=<senha>
+```
+
+Em staging:
+```
+ansible-playbook -v consul.yml -i hosts --extra-vars "ansible_sudo_pass=<senha> env=staging"
 ```
 
 Note about old versions: if you've already used the installer before version 1.1 was released, you might need to remove your `~/.ansible` folder.
