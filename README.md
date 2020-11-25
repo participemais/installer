@@ -70,7 +70,7 @@ remote-server-ip-address (maintain other default options)
 Run the ansible playbook
 
 ```
-ansible-playbook -v consul.yml -i hosts --extra-vars "ansible_sudo_pass=<senha>
+ansible-playbook -v consul.yml -i hosts --extra-vars "ansible_sudo_pass=<senha>"
 ```
 
 Note about old versions: if you've already used the installer before version 1.1 was released, you might need to remove your `~/.ansible` folder.
