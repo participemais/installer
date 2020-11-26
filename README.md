@@ -144,10 +144,10 @@ You should now see that change at your remote server's ip address
 ## Dump e Restore
 
 ```
- psql -U deploy consul_<env>
+sudo -u postgres psql
 ALTER ROLE deploy Superuser;
 \q
-pg_dump -U deploy  consul_<env> > original.dump
+pg_dump -U deploy -F t consul_<env> > db.dump
 pg_restore -d consul_<env> db.dump -c -U deploy
 ```
 
