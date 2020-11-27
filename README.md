@@ -150,6 +150,9 @@ ALTER ROLE deploy Superuser;
 pg_dump -U deploy -F t consul_<env> > db.dump
 pg_restore -d consul_<env> db.dump -c -U deploy
 ```
+### Anexos
+
+O nome dos arquivos anexos em public/system seguem uma lógica utilizando como parâmtero a chave paperclip_secret_base em secrets.yml. Essa chave não é criada por padrão na instalação, devendo ser copiada da instalação anterior.
 
 ## Email configuration
 
