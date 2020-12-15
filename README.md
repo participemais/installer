@@ -1,26 +1,26 @@
-# CONSUL Installer [![Build Status](https://travis-ci.com/consul/installer.svg?branch=master)](https://travis-ci.com/consul/installer)
+# Instalador do Participe+
 
-[CONSUL](https://github.com/consul/consul) installer for production environments
+Instalador do [Participe+](https://github.com/consul/consul) para ambientes de produção e homologação.
 
 
-## Prerequisities
+## Pré requisitos
 
 - Ubuntu 18.04 x64
 
-Access to a remote server via public ssh key without password.
-The default user is `deploy` but you can [use any user](#using-a-different-user-than-deploy) with sudo privileges.
+Accesso ao servidor remoto via ssh com chave pública sem senha.
+O usuário padrão é `deploy`. A execução do instalador pressupõe um usuário de igual nome na máquina de origem.
 
 ```
 ssh root@remote-server-ip-address
 ```
 
-Updated system package versions
+Update da lista de pacotes
 
 ```
 sudo apt-get update
 ```
 
-Python 2.7 installed in the remote server
+Python 2.7 instalado no servidor
 
 ```
 sudo apt-get -y install python-simplejson
@@ -42,53 +42,40 @@ $ ssh deploy@server_ip_address
 ```
 
 
-## Running the installer
+## Executando o instalador
 
-The following commands must be executed in your local machine
+Os comandos abaixo devem ser executados na máquina de origem.
 
 [Install Ansible >= 2.7](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
 
-Get the Ansible Playbook
+Download do Ansible playbook
 
 ```
-git clone https://github.com/consul/installer
+git clone https://github.com/juliangutierrez/installer
 cd installer
 ```
 
-Create your local `hosts` file
+Criação do arquivo `hosts` local
 
 ```
 cp hosts.example hosts
 ```
 
-Update your local `hosts` file with the remote server's ip address
+Atualização do `hosts` com o ip do servidor remoto
 
 ```
 remote-server-ip-address (maintain other default options)
 ```
 
-Run the ansible playbook
+Execução do ansible playbook
 
 ```
 ansible-playbook -v consul.yml -i hosts --extra-vars "ansible_sudo_pass=<senha>"
 ```
 
-Note about old versions: if you've already used the installer before version 1.1 was released, you might need to remove your `~/.ansible` folder.
+## Deploys com Capistrano
 
-Visit remote-server-ip-address in your browser and you should see CONSUL running!
-
-## Admin user
-
-You can sign in to the application with the default admin user:
-
-```
-admin@consul.dev
-12345678
-```
-
-## Deploys with Capistrano
-
-To restart the server and deploy new code to the server we have to configure Capistrano.
+Para reiniciar o servidor e fazer deploys é preciso configurar o Capistrano.
 
 ### Screencast
 
@@ -98,19 +85,13 @@ Create your [fork](https://help.github.com/articles/fork-a-repo/)
 
 Setup locally for your [development environment](https://docs.consulproject.org/docs/english-documentation/introduction/local_installation)
 
-Checkout the latest stable version:
-
-```
-git checkout origin/1.2.0 -b stable
-```
-
-Create your `deploy-secrets.yml`
+Criação do `deploy-secrets.yml`
 
 ```
 cp config/deploy-secrets.yml.example config/deploy-secrets.yml
 ```
 
-Update `deploy-secrets.yml` with your server's info
+Atualização do `deploy-secrets.yml` com informações do servidor
 
 ```
 deploy_to: "/home/deploy/consul"
@@ -119,29 +100,13 @@ db_server: "localhost"
 server_name: "your_remote_ip_address"
 ```
 
-Update your `repo_url` in `deploy.rb`
-
-```
-set :repo_url, 'https://github.com/your_github_username/consul.git'
-```
-
-Make a change in a view and push it your fork in Github
-
-```
-git add .
-git commit -a -m "Add sample text to homepage"
-git push origin stable
-```
-
-Deploy to production
+Deploy para o servidor
 
 ```
 branch=stable cap production deploy
 ```
 
-You should now see that change at your remote server's ip address
-
-## Dump e Restore
+## Dump e Restore da base de dados
 
 ```
 sudo -u postgres psql
@@ -154,18 +119,18 @@ pg_restore -d consul_<env> db.dump -c -U deploy
 
 O nome dos arquivos anexos em public/system seguem uma lógica utilizando como parâmtero a chave paperclip_secret_base em secrets.yml. Essa chave não é criada por padrão na instalação, devendo ser copiada da instalação anterior.
 
-## Email configuration
+## Configuração de Email
 
 ### Screencast
 
 [How to setup email deliveries](https://youtu.be/9W6txGpe4v4)
 
-Screencast update: The Installer now configures a queue to send emails asynchronously. Thus you will not see a 500 error when there is a misconfiguration, as the email is sent asyncronously and the error will be raised in the queue. To see email error logs open the rails console (`cd /home/deploy/consul/current/ && bin/rails c -e production`) and search for the last error in the queue `Delayed::Job.last.last_error`)
+Para ver o log de erros de email abrir o console do rails (`cd /home/deploy/consul/current/ && bin/rails c -e production`) e procurar pelo último erro da fila ( `Delayed::Job.last.last_error`)
 
-Update the following file in your production server:
+Atualização do arquivo abaixo no servidor
 `/home/deploy/consul/shared/config/secrets.yml`
 
-You want to change this block of code for your production environment and use your own SMTP credentials:
+Preencher com as credenciais SMTP:
 
 ```
   mailer_delivery_method: "smtp"
@@ -179,7 +144,7 @@ You want to change this block of code for your production environment and use yo
     enable_starttls_auto: true
 ```
 
-And restart the server running this command from your local CONSUL installation (see [Deploys with Capistrano](https://github.com/consul/installer#deploys-with-capistrano) for details).
+Reiniciar o a aplicação
 
 ```
 cap production deploy:restart
@@ -283,39 +248,6 @@ To set up the application by itself:
 ansible-playbook -v app.yml -i hosts
 ```
 
-### Platform-as-a-Service (PaaS)
+## Licença
 
-Aside from just using managed databases, you might also look into platform-as-a-service options (like [Azure App Service](https://azure.microsoft.com/en-us/services/app-service/) or [Google App Engine](https://cloud.google.com/appengine/)) to not have to manage a server at all.
-
-## No root access
-
-By default the installer assumes you can log in as `root`. The `root` user will only be used once to login and create a `deploy` user. The `deploy` user is the one that will actually install all libraries and is the user that must be used to login to the server to do maintenance tasks.
-
-If you do not have `root` access, you will need your system administrator to grant you sudo privileges for a `deploy` user in the `wheel` group without password. You will also need to change the variable `ansible_user` to `deploy` in your `hosts` file.
-
-## Using a different user than deploy
-
-Change the variable [deploy_user](https://github.com/consul/installer/blob/1.2.0/group_vars/all#L12) to the username you would like to use.
-
-## Ansible Documentation
-
-http://docs.ansible.com/
-
-## Roadmap
-
-Cross platform compatibility (Ubuntu, CentOS)
-
-Greater diversity of interchangeable roles (nginx/apache, unicorn/puma/passenger, rvm/rbenv)
-
-## How to contribute
-
-- [Open an issue](https://help.github.com/en/articles/creating-an-issue)
-- [Send us a Pull Request](https://help.github.com/en/articles/creating-a-pull-request)
-
-## Support
-
-[![Join the chat at https://gitter.im/consul/consul](https://badges.gitter.im/consul/consul.svg)](https://gitter.im/consul/consul?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
-## License
-
-Code published under AFFERO GPL v3 (see [LICENSE-AGPLv3.txt](LICENSE-AGPLv3.txt))
+Publicado sobre AFFERO GPL v3 ([LICENSE-AGPLv3.txt](LICENSE-AGPLv3.txt))
