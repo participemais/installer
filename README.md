@@ -1,6 +1,6 @@
 # Instalador do Participe+
 
-Instalador do [Participe+](https://github.com/consul/consul) para ambientes de produção e homologação.
+Instalador do [Participe+](https://github.com/participemais/consul) para ambientes de produção e homologação.
 
 
 ## Pré requisitos
@@ -51,7 +51,7 @@ Os comandos abaixo devem ser executados na máquina de origem.
 Download do Ansible playbook
 
 ```
-git clone https://github.com/juliangutierrez/installer
+git clone https://github.com/participemais/installer
 cd installer
 ```
 
@@ -79,11 +79,9 @@ Para reiniciar o servidor e fazer deploys é preciso configurar o Capistrano.
 
 ### Screencast
 
-[How to setup Capistrano](https://youtu.be/ZCfPz_c_H6g)
+[Como configurar o capistrano](https://youtu.be/ZCfPz_c_H6g)
 
-Create your [fork](https://help.github.com/articles/fork-a-repo/)
-
-Setup locally for your [development environment](https://docs.consulproject.org/docs/english-documentation/introduction/local_installation)
+Comfigurar localmente seu [ambiente de desenvolvimento](https://docs.consulproject.org/docs/english-documentation/introduction/local_installation)
 
 Criação do `deploy-secrets.yml`
 
@@ -123,7 +121,7 @@ O nome dos arquivos anexos em public/system seguem uma lógica utilizando como p
 
 ### Screencast
 
-[How to setup email deliveries](https://youtu.be/9W6txGpe4v4)
+[Configurar entrega de emails](https://youtu.be/9W6txGpe4v4)
 
 Para ver o log de erros de email abrir o console do rails (`cd /home/deploy/consul/current/ && bin/rails c -e production`) e procurar pelo último erro da fila ( `Delayed::Job.last.last_error`)
 
@@ -150,102 +148,34 @@ Reiniciar o a aplicação
 cap production deploy:restart
 ```
 
-Once you setup your domain, depending on your SMTP provider, you will have to do two things:
+Após configurar o domínio atualizar `server_name` em `/home/deploy/consul/shared/config/secrets.yml`.
 
-- Update the `server_name` with your domain in `/home/deploy/consul/shared/config/secrets.yml`.
-- Update the `sender_email_address` from the admin section (`remote-server-ip-address/admin/settings`)
+## Servidor de homologação
 
-If your SMTP provider uses an authentication other than `plain`, check out the [Rails docs on email configuration](https://guides.rubyonrails.org/action_mailer_basics.html#action-mailer-configuration) for the different authentation options.
-
-## Staging server
-
-To setup a staging server to try things out before deploying to a production server:
-
-Update your local `hosts` file with the staging server's ip address
+Atualizar arquivo `hosts` com o ip do servidor de homologação
 
 ```
-remote-server-ip-address (maintain other default options)
+remote-server-ip-address (manter as outras opções)
 ```
 
-And run the playbook with an extra var "env":
+Executar o play book com a variável "env":
 
 ```
 ansible-playbook -v consul.yml -i hosts --extra-vars "ansible_sudo_pass=<senha> env=staging"
 ```
 
-Visit remote-server-ip-address in your browser and you should now see CONSUL running in your staging server.
+## SSL com LetsEncrypt
 
-## SSL with LetsEncrypt
-
-Using https instead of http is an important security configuration. Before you begin, you will need to either buy a domain or get access to the configuration of an existing domain. Next, you need to make sure you have an A Record in the DNS configuration of your domain, pointing to the correponding IP address of your server. You can check if your domain is correctly configured at this url https://dnschecker.org/, where you should see your IP address when searching for your domain name.
-
-Once you have that setup we need to configure the Installer to use your domain in the application.
-
-First, uncomment the `domain` variable in the [configuration file](https://github.com/consul/installer/blob/1.2.0/group_vars/all) and update it with your domain name:
+Mudar para a branch ssl e executar o instalador. Se o domínio for diferente do padrão, atualizar a variável `domain` no [arquivo de configuração](https://github.com/consul/installer/blob/1.2.0/group_vars/all) com o nome de domínio:
 
 ```
 #domain: "your_domain.com"
 ```
 
-Next, uncomment the `letsencrypt_email` variable in the [configuration file](https://github.com/consul/installer/blob/1.2.0/group_vars/all) and update it with a valid email address:
+Executar o instalador somente com o arquivo app:
 
 ```
-#letsencrypt_email: "your_email@example.com"
-```
-
-Re-run the installer:
-
-```
-ansible-playbook -v consul.yml -i hosts
-```
-
-You should now be able to see the application running at https://your_domain.com in your browser.
-
-## Configuration Variables
-
-These are the main configuration variables:
-
-```
-# Server Timzone + Locale
-timezone: Europe/Madrid
-locale: en_US.UTF-8
-
-# Authorized Hosts
-ssh_public_key_path: "change_me/.ssh/id_rsa.pub"
-
-#Postgresql
-postgresql_version: 9.6
-database_name: "consul_production"
-database_user: "deploy"
-database_password: "change_me"
-database_hostname: "localhost"
-database_port: 5432
-
-#SMTP
-smtp_address:        "smtp.example.com"
-smtp_port:           25
-smtp_domain:         "your_domain.com"
-smtp_user_name:      "username"
-smtp_password:       "password"
-smtp_authentication: "plain"
-```
-
-There are many more variables available check them out [here]((https://github.com/consul/installer/blob/1.2.0/group_vars/all))
-
-## Other deployment options
-
-### Split database from application code
-
-The [`consul` playbook](consul.yml) creates the database on the same server as the application code. If you are using a cloud host that offers managed databases (such as [AWS RDS](https://aws.amazon.com/rds/), [Azure Databases](https://azure.microsoft.com/en-us/product-categories/databases/), or [Google Cloud SQL](https://cloud.google.com/sql/)), we recommend using that instead.
-
-To set up the application by itself:
-
-1. Fork this repository.
-1. Specify your database credentials (see the `database_*` [group variables](group_vars/all)) in a [vault](https://docs.ansible.com/ansible/latest/user_guide/vault.html).
-1. Run the [`app` playbook](app.yml) instead of the [`consul`](consul.yml) one against a clean server.
-
-```sh
-ansible-playbook -v app.yml -i hosts
+ansible-playbook -v app.yml -i hosts --extra-vars "ansible_sudo_pass=<senha>"
 ```
 
 ## Licença
